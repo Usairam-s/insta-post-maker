@@ -22,7 +22,7 @@ export default function Home() {
           <div className="flex h-[calc(100vh-8rem)] flex-col items-center justify-center gap-8 text-center">
             <div className="space-y-4">
               <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-                Instagram Post Generator
+                Instagram Post Maker
               </h1>
               <p className="text-muted-foreground mx-auto max-w-prose text-lg">
                 Create stunning Instagram posts with perfect sizing and text
