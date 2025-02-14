@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useRef, useState, useEffect } from "react";
+import { Plus, Minus } from "lucide-react"; // Importing icons
 
 const wrapText = (
   ctx: CanvasRenderingContext2D,
@@ -45,6 +46,7 @@ export const ImageEditor = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<File | null>(null);
   const [text, setText] = useState("");
+  const [fontSize, setFontSize] = useState(30); // Default font size
 
   useEffect(() => {
     if (image) {
@@ -55,33 +57,17 @@ export const ImageEditor = ({
           const canvas = canvasRef.current!;
           const ctx = canvas.getContext("2d")!;
 
-          // canvas.width = 1080;
-          // canvas.height = 1080;
-          canvas.width = img.width; // Set canvas width to image width
-          canvas.height = img.height; // Set canvas height to image height
+          canvas.width = img.width;
+          canvas.height = img.height;
 
-          const ratio = Math.min(
-            canvas.width / img.width,
-            canvas.height / img.height
-          );
-          const width = img.width * ratio;
-          const height = img.height * ratio;
-
-          ctx.drawImage(
-            img,
-            0, // Draw image starting from (0, 0)
-            0,
-            canvas.width,
-            canvas.height
-          );
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
           ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           if (text) {
-            const padding = 80;
+            const padding = 20;
             const maxWidth = canvas.width - padding * 2;
-            const fontSize = Math.min(canvas.width * 0.08, 60);
             const lineHeight = fontSize * 1.4;
 
             ctx.font = `bold ${fontSize}px Arial`;
@@ -114,11 +100,10 @@ export const ImageEditor = ({
       };
       reader.readAsDataURL(image);
     }
-  }, [image, text]);
+  }, [image, text, fontSize]); // Added fontSize as a dependency
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-6 px-4">
-      {/* Canvas Preview */}
       <div className="w-full max-w-[600px] space-y-4">
         <div className="relative aspect-square w-full bg-muted rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 overflow-hidden">
           <canvas ref={canvasRef} className="w-full h-full object-contain" />
@@ -129,7 +114,6 @@ export const ImageEditor = ({
           )}
         </div>
 
-        {/* Upload Input */}
         <div className="space-y-2 w-full">
           <Label htmlFor={`image-${index}`} className="text-lg font-medium">
             Upload Image
@@ -143,7 +127,6 @@ export const ImageEditor = ({
           />
         </div>
 
-        {/* Caption Input */}
         <div className="space-y-2 w-full">
           <Label htmlFor={`text-${index}`} className="text-lg font-medium">
             Caption Text
@@ -160,6 +143,23 @@ export const ImageEditor = ({
             Tip: Press Enter for manual line breaks. Text wraps automatically.
           </p>
         </div>
+      </div>
+
+      <div className="flex space-x-2">
+        <button
+          onClick={() => setFontSize((prev) => Math.min(prev + 2, 100))}
+          className="px-4 py-2 bg-slate-200 text-black rounded-md flex items-center"
+        >
+          <Plus className="mr-2" /> {/* Increase Font Size Icon */}
+          Increase Font Size
+        </button>
+        <button
+          onClick={() => setFontSize((prev) => Math.max(prev - 2, 10))}
+          className="px-4 py-2 bg-slate-200 text-black rounded-md flex items-center"
+        >
+          <Minus className="mr-2" /> {/* Decrease Font Size Icon */}
+          Decrease Font Size
+        </button>
       </div>
     </div>
   );
