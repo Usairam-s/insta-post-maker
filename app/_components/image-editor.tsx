@@ -55,8 +55,10 @@ export const ImageEditor = ({
           const canvas = canvasRef.current!;
           const ctx = canvas.getContext("2d")!;
 
-          canvas.width = 1080;
-          canvas.height = 1080;
+          // canvas.width = 1080;
+          // canvas.height = 1080;
+          canvas.width = img.width; // Set canvas width to image width
+          canvas.height = img.height; // Set canvas height to image height
 
           const ratio = Math.min(
             canvas.width / img.width,
@@ -67,13 +69,13 @@ export const ImageEditor = ({
 
           ctx.drawImage(
             img,
-            (canvas.width - width) / 2,
-            (canvas.height - height) / 2,
-            width,
-            height
+            0, // Draw image starting from (0, 0)
+            0,
+            canvas.width,
+            canvas.height
           );
 
-          ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           if (text) {
@@ -86,7 +88,7 @@ export const ImageEditor = ({
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
 
-            ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
             ctx.shadowOffsetX = 3;
             ctx.shadowOffsetY = 3;
             ctx.shadowBlur = 8;
