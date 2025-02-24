@@ -226,7 +226,7 @@ export const ImageEditor = ({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Enter your caption (press Enter for new line)"
-            rows={4}
+            rows={2}
             className="min-h-[120px] text-lg border-2 rounded-xl p-4"
           />
           <p className="text-sm text-muted-foreground">
