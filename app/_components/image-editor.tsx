@@ -1,5 +1,5 @@
+// app/_components/image-editor.tsx
 "use client";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useRef, useState, useEffect } from "react";
@@ -56,10 +56,15 @@ export const ImageEditor = ({
   index?: number;
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [image, setImage] = useState<File | null>(null);
   const [text, setText] = useState("");
   const [fontSize, setFontSize] = useState(30);
-  const [shadowOpacity, setShadowOpacity] = useState(0.3); // New State for Shadow
+  const [shadowOpacity, setShadowOpacity] = useState(0.3);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
   useEffect(() => {
     if (image) {
@@ -75,7 +80,6 @@ export const ImageEditor = ({
 
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          // Apply shadow overlay with adjustable opacity
           ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -97,7 +101,6 @@ export const ImageEditor = ({
             const startY =
               canvas.height * 0.65 - (lines.length * lineHeight) / 2;
 
-            // Check if text fits vertically
             const availableHeight = canvas.height * 0.35;
             const neededHeight = lines.length * lineHeight;
 
@@ -128,16 +131,48 @@ export const ImageEditor = ({
       };
       reader.readAsDataURL(image);
     }
-  }, [image, text, fontSize, shadowOpacity]); // Re-render on opacity change
+  }, [image, text, fontSize, shadowOpacity]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-6 px-4">
       <div className="w-full max-w-[600px] space-y-4">
-        <div className="relative aspect-square w-full bg-muted rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 overflow-hidden">
-          <canvas ref={canvasRef} className="w-full h-full object-contain" />
+        <div className="relative aspect-square w-full bg-muted rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 overflow-hidden group cursor-pointer">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files?.[0] || null)}
+            ref={fileInputRef}
+            className="hidden"
+          />
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full object-contain pointer-events-none"
+          />
           {!image && (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              Preview will appear here
+            <div
+              onClick={handleUploadClick}
+              className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-gray-100/10 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-12 h-12 mb-2"
+              >
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" />
+                <line x1="16" x2="22" y1="5" y2="5" />
+                <line x1="19" x2="19" y1="2" y2="8" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+              <span className="text-lg font-medium">Click to upload image</span>
+              <span className="text-sm">PNG, JPG, JPEG up to 10MB</span>
             </div>
           )}
         </div>
@@ -175,23 +210,9 @@ export const ImageEditor = ({
               ))}
             </SelectContent>
           </Select>
-
           <p className="text-sm text-muted-foreground">
             Choose size that fits your text in the preview
           </p>
-        </div>
-
-        <div className="space-y-2 w-full">
-          <Label htmlFor={`image-${index}`} className="text-lg font-medium">
-            Upload Image
-          </Label>
-          <Input
-            id={`image-${index}`}
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            className="w-full h-12 border-2 border-dashed"
-          />
         </div>
 
         <div className="space-y-2 w-full">
