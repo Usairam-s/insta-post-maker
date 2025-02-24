@@ -1,10 +1,16 @@
-// app/_components/image-editor.tsx
 "use client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useRef, useState, useEffect } from "react";
-import { Plus, Minus } from "lucide-react"; // Importing icons
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 
 const wrapText = (
   ctx: CanvasRenderingContext2D,
@@ -36,6 +42,12 @@ const wrapText = (
   return lines;
 };
 
+const FONT_SIZES = [
+  { value: "75", label: "Small" },
+  { value: "90", label: "Medium" },
+  { value: "120", label: "Large" },
+];
+
 export const ImageEditor = ({
   onImageProcessed,
   index,
@@ -46,7 +58,8 @@ export const ImageEditor = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<File | null>(null);
   const [text, setText] = useState("");
-  const [fontSize, setFontSize] = useState(30); // Default font size
+  const [fontSize, setFontSize] = useState(30);
+  const [shadowOpacity, setShadowOpacity] = useState(0.3); // New State for Shadow
 
   useEffect(() => {
     if (image) {
@@ -62,7 +75,8 @@ export const ImageEditor = ({
 
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+          // Apply shadow overlay with adjustable opacity
+          ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           if (text) {
@@ -83,15 +97,29 @@ export const ImageEditor = ({
             const startY =
               canvas.height * 0.65 - (lines.length * lineHeight) / 2;
 
-            ctx.fillStyle = "white";
-            lines.forEach((line, i) => {
+            // Check if text fits vertically
+            const availableHeight = canvas.height * 0.35;
+            const neededHeight = lines.length * lineHeight;
+
+            if (neededHeight > availableHeight) {
+              ctx.fillStyle = "red";
               ctx.fillText(
-                line,
+                "Text too long!",
                 canvas.width / 2,
-                startY + i * lineHeight,
+                canvas.height / 2,
                 maxWidth
               );
-            });
+            } else {
+              ctx.fillStyle = "white";
+              lines.forEach((line, i) => {
+                ctx.fillText(
+                  line,
+                  canvas.width / 2,
+                  startY + i * lineHeight,
+                  maxWidth
+                );
+              });
+            }
           }
 
           onImageProcessed(canvas.toDataURL("image/jpeg"));
@@ -100,7 +128,7 @@ export const ImageEditor = ({
       };
       reader.readAsDataURL(image);
     }
-  }, [image, text, fontSize]); // Added fontSize as a dependency
+  }, [image, text, fontSize, shadowOpacity]); // Re-render on opacity change
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-6 px-4">
@@ -112,6 +140,45 @@ export const ImageEditor = ({
               Preview will appear here
             </div>
           )}
+        </div>
+
+        {/* Shadow Opacity Slider */}
+        <div className="space-y-2 w-full">
+          <Label className="text-lg font-medium">Shadow Opacity</Label>
+          <Slider
+            min={0}
+            max={1}
+            step={0.05}
+            value={[shadowOpacity]}
+            onValueChange={(value: any) => setShadowOpacity(value[0])}
+          />
+          <p className="text-sm text-muted-foreground">
+            Adjust the background shadow intensity
+          </p>
+        </div>
+
+        {/* Font Size Selector */}
+        <div className="space-y-2 w-full">
+          <Label className="text-lg font-medium">Font Size</Label>
+          <Select
+            value={fontSize.toString()}
+            onValueChange={(value) => setFontSize(Number(value))}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Font Size" />
+            </SelectTrigger>
+            <SelectContent>
+              {FONT_SIZES.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <p className="text-sm text-muted-foreground">
+            Choose size that fits your text in the preview
+          </p>
         </div>
 
         <div className="space-y-2 w-full">
@@ -143,23 +210,6 @@ export const ImageEditor = ({
             Tip: Press Enter for manual line breaks. Text wraps automatically.
           </p>
         </div>
-      </div>
-
-      <div className="flex space-x-2">
-        <button
-          onClick={() => setFontSize((prev) => Math.min(prev + 2, 100))}
-          className="px-4 py-2 bg-slate-200 text-black rounded-md flex items-center"
-        >
-          <Plus className="mr-2" /> {/* Increase Font Size Icon */}
-          Increase Font Size
-        </button>
-        <button
-          onClick={() => setFontSize((prev) => Math.max(prev - 2, 10))}
-          className="px-4 py-2 bg-slate-200 text-black rounded-md flex items-center"
-        >
-          <Minus className="mr-2" /> {/* Decrease Font Size Icon */}
-          Decrease Font Size
-        </button>
       </div>
     </div>
   );

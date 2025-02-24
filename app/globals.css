@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-poppins); /* Set default font */
+  font-family: Poppins;
 }
 
 :root {
-  --font-poppins: "Poppins", sans-serif;
-  --font-outfit: "Outfit", sans-serif;
+  --font-poppins: Poppins, sans-serif;
+  --font-outfit: sans-serif;
 }
 
 @layer base {
@@ -70,6 +70,15 @@ body {
 @layer base {
   * {
     @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
