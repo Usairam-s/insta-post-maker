@@ -43,9 +43,11 @@ const wrapText = (
 };
 
 const FONT_SIZES = [
-  { value: "75", label: "Small" },
-  { value: "90", label: "Medium" },
-  { value: "120", label: "Large" },
+  { value: "75", label: "x-small" },
+  { value: "90", label: "small" },
+  { value: "120", label: "Medium" },
+  { value: "160", label: "Large" },
+  { value: "190", label: "x-Large" },
 ];
 
 export const ImageEditor = ({
